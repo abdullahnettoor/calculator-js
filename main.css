@@ -21,7 +21,7 @@ body{
 .calc {
     width: min(19rem, 90vw) ;
     padding: 1rem;
-    /* background-color: rgba(147, 169, 202, 0.979); */
+    background-color: rgba(255, 255, 255, 0.426);
     
     border-radius: 38px;
     color: rgb(0, 0, 0);
@@ -38,6 +38,9 @@ body{
     padding: 20px 12px;
     margin: .4rem 0;
     border-radius: 24px;
+    overflow-x: scroll;
+    transition: 250ms ease-in-out;
+
 }
 
 .calc-button {
@@ -55,18 +58,20 @@ body{
 
 .calc-button:hover {
     background-color: #faffdc;
-    box-shadow: 0px 16px 10px #00000034;
     transition: 250ms ease-in-out;
 }
 
 .calc-button:active {
     background-color: #bbbcbe;
-    /* transition: 250ms ease-in-out; */
+    box-shadow: 0px 16px 10px #00000034;
+    transition: 250ms ease-in-out;
 }
 
 .double {
     width: inherit;
     flex: 1;
+    font-size: 300%;
+    line-height: 0%;
 }
 
 .triple {
