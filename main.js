@@ -1,77 +1,99 @@
+let runningTotal = 0;
+let buffer = "0";
+let previousOperator;
 const screen = document.querySelector(".screen");
-let onMemory = 0;
-let result = 0;
 
-
-document.querySelector(".calc-buttons").addEventListener("click", (e)=>{
-    let buttonValue = e.target.innerHTML;
-    if (e.target.nodeName == "BUTTON"){
-        switch(buttonValue){
-        case "←":
-            screen.innerHTML = del(screen.innerHTML);
-            console.log(screen.innerHTML, +onMemory)
-            break;
-        case "␡":
-            screen.innerHTML = "0";
-            console.log(screen.innerHTML, +onMemory)
-            onMemory = 0;
-            break;
-        case "=":
-            screen.innerHTML = math(+screen.innerHTML, onMemory, buttonValue);
-            console.log(screen.innerHTML, +onMemory)
-            onMemory = 0;
-            break;
-        case "+":
-        case "-":
-        case "×":
-        case "÷":
-            if(screen.innerHTML != "0"){
-                screen.innerHTML = math(+screen.innerHTML, onMemory, buttonValue); // +screen.innerHTML converts string to number
-                console.log(screen.innerHTML, +onMemory, buttonValue)
-                onMemory = +screen.innerHTML;
-                screen.innerHTML = "0";
-                break;
-            }
-        default:
-            if(screen.innerHTML === "0")    
-                screen.innerHTML = buttonValue;
-            else
-                screen.innerHTML = screen.innerHTML + buttonValue;
-            break;
-        }
+function buttonClick(value) {
+    if (isNaN(parseInt(value))) {
+      handleSymbol(value);
+    } else {
+      handleNumber(value);
     }
-});
-
-function del (number){
-    if(number.length === 1){
-        number = "0";
-        onMemory = "0";
-    }else{
-        number = number.substring(0, number.length-1)
-    }
-    return number;
+  rerender();
 }
 
-function math (number, previous, operator){
-    if(previous != 0){
-        if(operator === "+"){
-            previous = previous + number;
-            console.log(`pre: ${previous} + num: ${number}` );
-        }
-        else if(operator === "-"){
-            previous = previous - number;
-            console.log(`pre: ${previous} - num: ${number}` );
-        }
-        else if(operator === "×"){
-            previous = previous * number;
-            console.log(`pre: ${previous} x num: ${number}` );
-        }
-        else if(operator === "÷"){
-            previous = previous / number;
-            console.log(`pre: ${previous} / num: ${number}` );
-        }
-    }else{
-        previous = number;
-    }
-    return previous;
+function handleNumber(value) {
+  if (buffer === "0") {
+    buffer = value;
+  } else {
+    buffer += value;
+  }
 }
+
+function handleMath(value) {
+  if (buffer === "0") {
+    // do nothing
+    return;
+  }
+
+  const intBuffer = parseInt(buffer);
+  if (runningTotal === 0) {
+    runningTotal = intBuffer;
+  } else {
+    flushOperation(intBuffer);
+  }
+
+  previousOperator = value;
+
+  buffer = "0";
+}
+
+function flushOperation(intBuffer) {
+  if (previousOperator === "+") {
+    runningTotal += intBuffer;
+  } else if (previousOperator === "-") {
+    runningTotal -= intBuffer;
+  } else if (previousOperator === "×") {
+    runningTotal *= intBuffer;
+  } else {
+    runningTotal /= intBuffer;
+  }
+}
+
+function handleSymbol(value) {
+  switch (value) {
+    case "␡":
+      buffer = "0";
+      runningTotal = 0;
+      break;
+    case "=":
+      if (previousOperator === null) {
+        // need two numbers to do math
+        return;
+      }
+      flushOperation(parseInt(buffer));
+      previousOperator = null;
+      buffer = +runningTotal;
+      runningTotal = 0;
+      break;
+    case "←":
+      if (buffer.length === 1) {
+        buffer = "0";
+      } else {
+        buffer = buffer.substring(0, buffer.length - 1);
+      }
+      break;
+    case "+":
+    case "-":
+    case "×":
+    case "÷":
+      handleMath(value);
+      break;
+  }
+}
+
+function rerender() {
+  screen.innerText = buffer;
+}
+
+function init() {
+  document
+    .querySelector(".calc-buttons")
+    .addEventListener("click", function (event) {
+      if (event.target.nodeName == "BUTTON") {
+        buttonClick(event.target.innerText);
+      }
+    });
+}
+
+init();
